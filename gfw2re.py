@@ -8,15 +8,24 @@ __all__ = ['gfw2re']
 _gwlurl = 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
 
 def gfw2re(filename=''):
-  a = []
-  def deal(line):
-    a.append(line)
+  sites = {
+    'white': {
+      'type1': [],
+      'type2': [],
+      'type3': []
+    },
+    'black': {
+      'type1': [],
+      'type2': [],
+      'type3': []
+    }
+  }
   if filename=='':
-    for line in request.urlopen(gwlurl):
-      print( line )
+    content = b64decode(request.urlopen(_gwlurl).read())
   else:
-    for line in open(filename):
-      print( line )
+    content = b64decode(open(filename).read())
+  for line in content.splitlines():
+    print( line )
   return filename;
 
 def getUsage():
@@ -25,5 +34,5 @@ def getUsage():
 if __name__ == "__main__":
   print (eval({
     1:  'gfw2re()',
-    2:  'gfw2re(sys.argv[-1])'
+    2:  'gfw2re(sys.argv[1])'
   }.get(len(sys.argv), 'getUsage()')))
