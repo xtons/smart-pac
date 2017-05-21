@@ -16,11 +16,7 @@ def gfw2re(filename=''):
         'http': [],
         'https': []
         },
-      'domain': [],
-      'anywhere': {
-        'plain': [],
-        'regexp': []
-      }
+      'domain': []
     },
     'black': {
       'initial': {
@@ -37,8 +33,7 @@ def gfw2re(filename=''):
   reProxy = {
     "white": {
       'initial': r'',
-      'domain': r'',
-      'anywhere': r''
+      'domain': r''
     },
     "black": {
       'initial': r'',
@@ -87,26 +82,24 @@ def gfw2re(filename=''):
   reProxy['black']['initial'] = reTemp.replace('/','\/').replace('.','\\.').replace('*','.*')
   reTemp = '|'.join(sites['black']['domain']).replace('.','\\.').replace('*','.*')
   reProxy['black']['domain'] = '^.*({})$'.format( reTemp )
-  reTemp = '|'.join(sites['black']['anywhere'])
-  reProxy['black']['anywhere'] = reTemp  #.replace('/','\/').replace('.','\\.').replace('*','.*')
+  reTemp = '|'.join( sites['black']['anywhere']['plain'] ).replace('/','\/').replace('.','\\.').replace('*','.*').replace('?','\?') \
+    + '|' + '|'.join( map( lambda x: x[1:-1], sites['black']['anywhere']['regexp']) )
+  reProxy['black']['anywhere'] = reTemp
   reTemp = '^http(://('+'|'.join(sites['white']['initial']['http'])+')|s://('+'|'.join(sites['white']['initial']['https'])+'))'
   reProxy['white']['initial'] = reTemp.replace('/','\/').replace('.','\\.').replace('*','.*')
   reTemp = '|'.join(sites['white']['domain']).replace('.','\\.').replace('*','.*')
   reProxy['white']['domain'] = '^.*({})$'.format( reTemp )
-  reTemp = '|'.join(sites['white']['anywhere'])
-  reProxy['white']['anywhere'] = reTemp  #.replace('/','\/').replace('.','\\.').replace('*','.*')
   return reProxy;
 
 def getUsage():
   return "Usage: {} [filename]\ngfw2re will download gfwlist.txt from {} if not specify a local file  .".format(sys.argv[0], _gwlurl)
 
 def dumpRe(reProxy):
-  print( reProxy['black']['initial'] )
-  print( reProxy['black']['domain'] )
-  # print( reProxy['black']['anywhere'] )
-  print( reProxy['white']['initial'] )
-  print( reProxy['white']['domain'] )
-  # print( reProxy['white']['anywhere'] )
+  print( 'var bi=/{}/;'.format( reProxy['black']['initial']) )
+  print( 'var bd=/{}/;'.format( reProxy['black']['domain']) )
+  print( 'var ba=/{}/;'.format( reProxy['black']['anywhere']) )
+  print( 'var wi=/{}/;'.format( reProxy['white']['initial']) )
+  print( 'var wd=/{}/;'.format( reProxy['white']['domain']) )
   
 if __name__ == "__main__":
   eval({
