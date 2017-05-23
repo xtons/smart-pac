@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import urllib.request as request
+import codecs
 import ipaddress
 import re
 import sys
@@ -13,9 +14,9 @@ _apnicurl = 'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'
 def chsip(filename=''):
   chsip = []
   if filename=='':
-    content = request.urlopen(_apnicurl).read()
+    content = request.urlopen(_apnicurl).read().decode('utf-8')
   else:
-    content = open(filename).read()
+    content = codecs.open(filename, 'r', 'utf-8').read()
   reVer = re.compile( "^\d.*$" )
   reCN = re.compile( "^apnic\|CN\|ipv4\|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\|(\d+)\|\d{8}\|.*$" )
   for line in content.splitlines():
@@ -37,7 +38,7 @@ def getUsage():
   return "Usage: {} [filename]\nchsip will download apnic file from {} if not specify a local file  .".format(sys.argv[0], _apnicurl)
 
 def dumpIp(ip):
-  print( 'var ips={};'.format(ip) )
+  print( 'var chsips={};'.format(ip) )
 
 if __name__ == "__main__":
   eval({
