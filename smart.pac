@@ -26,5 +26,9 @@ function FindProxyForURL(url, host) {
     return black;
   if( proxyRe['ba'].test(url) )
     return black;
+  if( !isResolvable(host) )
+    return black;
+  var ip = convert_addr( dnsResolve(host) );
+  
   return gray;
 }
