@@ -5,7 +5,6 @@ import ipaddress
 import re
 import sys
 import warnings
-from base64 import b64decode
 
 __all__ = ['chsip']
 
@@ -31,14 +30,14 @@ def chsip(filename=''):
     if m:
       begin = int(ipaddress.IPv4Address(m.group(1)))
       end = begin + int(m.group(2)) - 1
-      chsip.append( [begin, end] ) 
+      chsip.append( [begin, end] )
   return chsip
 
 def getUsage():
   return "Usage: {} [filename]\nchsip will download apnic file from {} if not specify a local file  .".format(sys.argv[0], _apnicurl)
 
-def dumpIp(ip):
-  print( 'var chsips={};'.format(ip) )
+def dumpIp(ips):
+  print( 'var chsips={};'.format(ips) )
 
 if __name__ == "__main__":
   eval({
