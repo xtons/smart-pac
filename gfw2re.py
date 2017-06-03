@@ -97,9 +97,9 @@ def getUsage():
 def dumpRe(reProxy):
   print( 'var bi=/{}/;'.format( reProxy['black']['initial']) )
   print( 'var bd=/{}/;'.format( reProxy['black']['domain']) )
-  print( 'var ba=/{}/;'.format( reProxy['black']['anywhere']) )
-  print( 'var wi=/{}/;'.format( reProxy['white']['initial']) )
-  print( 'var wd=/{}/;'.format( reProxy['white']['domain']) )
+  print( 'var ba=/{}/;'.format( reProxy['black']['anywhere'] ) )
+  print( 'var wi=/{}/;'.format( reProxy['white']['initial'] ) )
+  print( 'var wd=/{}/;'.format( reProxy['white']['domain'] ) )
   
 if __name__ == "__main__":
   eval({

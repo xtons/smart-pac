@@ -1,0 +1,56 @@
+var white = "DIRECT; SOCKS5 192.168.119.198:8128";
+var black = "SOCKS5 192.168.119.198:8128; DIRECT";
+var gray = "DIRECT; SOCKS5 192.168.119.198:8128"
+var detect = true;
+var smart;
+function Smart(white,black,gray) {
+  this.w=white;
+  this.b=black;
+  this.g=gray;
+  this.bi=/$bi/;
+  this.bd=/$bd/;
+  this.ba=/$ba/;
+  this.wi=/$wi/;
+  this.wd=/$wd/;
+  this.chsip=$chsip;
+  this.getProxy=function(url,host,detect) {
+    if( wd.test(host) )
+      return w;
+    if( wi.test(url) )
+      return w;
+    if( bd.test(host) )
+      return b;
+    if( bi.test(url) )
+      return b;
+    if( ba.test(url) )
+      return b;
+    if( detect & chsip.length>0 ) {
+      if( !isResolvable(host) )
+      	return b;
+    	var ip = convert_addr( dnsResolve(host) );
+    	var lr=[0,chsip.length-1];
+      if( ip>=chsip[0][0] && ip<=chsip[lr[1]][1] ) {
+      	if(ip<=chsip[0][1]||ip>=chsip[lr[1]][0])
+      		return w;
+    		while(true) {
+    			var mid = Math.floor((lr[0]+lr[1])/2);
+    			if(mid==lr[0])
+    				break;
+    			if(ip<chsip[mid][0])
+    				right = mid;
+    			else if(ip>chsip[mid][1])
+    				left = mid;
+    			else
+    				return w;
+    		}
+      }
+    }
+    return g;
+  }
+}
+
+function FindProxyForURL(url, host) {
+  if( typeof(smart)=="undefined" )
+    smart = new Smart(white,black,gray);
+  return smart.getProxy(url,host,detect);
+}
