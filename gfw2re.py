@@ -77,15 +77,21 @@ def gfw2re(filename=''):
       list['anywhere']['regexp'].append(line)
     else:
       warnings.warn( 'can\'t understand "{}".'.format(line) )
-      
-  reTemp = '^http(://('+'|'.join(sites['black']['initial']['http'])+')|s://('+'|'.join(sites['black']['initial']['https'])+'))'
+  
+  if( len(sites['black']['initial']['https']) > 0 ):
+    reTemp = '^http(://('+'|'.join(sites['black']['initial']['http'])+')|s://('+'|'.join(sites['black']['initial']['https'])+'))'
+  else:
+    reTemp = '^http://('+'|'.join(sites['black']['initial']['http'])+')'
   reProxy['black']['initial'] = reTemp.replace('/','\/').replace('.','\\.').replace('*','.*')
   reTemp = '|'.join(sites['black']['domain']).replace('.','\\.').replace('*','.*')
   reProxy['black']['domain'] = '^.*({})$'.format( reTemp )
   reTemp = '|'.join( sites['black']['anywhere']['plain'] ).replace('/','\/').replace('.','\\.').replace('*','.*').replace('?','\?') \
     + '|' + '|'.join( map( lambda x: x[1:-1], sites['black']['anywhere']['regexp']) )
   reProxy['black']['anywhere'] = reTemp
-  reTemp = '^http(://('+'|'.join(sites['white']['initial']['http'])+')|s://('+'|'.join(sites['white']['initial']['https'])+'))'
+  if( len(sites['white']['initial']['https']) > 0 ):
+    reTemp = '^http(://('+'|'.join(sites['white']['initial']['http'])+')|s://('+'|'.join(sites['white']['initial']['https'])+'))'
+  else:
+    reTemp = '^http://('+'|'.join(sites['white']['initial']['http'])+')'
   reProxy['white']['initial'] = reTemp.replace('/','\/').replace('.','\\.').replace('*','.*')
   reTemp = '|'.join(sites['white']['domain']).replace('.','\\.').replace('*','.*')
   reProxy['white']['domain'] = '^.*({})$'.format( reTemp )
