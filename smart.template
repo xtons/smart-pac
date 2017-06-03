@@ -14,24 +14,24 @@ function Smart(white,black,gray) {
   this.wd=/$wd/;
   this.chsip=$chsip;
   this.getProxy=function(url,host,detect) {
-    if( wd.test(host) )
-      return w;
-    if( wi.test(url) )
-      return w;
-    if( bd.test(host) )
-      return b;
-    if( bi.test(url) )
-      return b;
-    if( ba.test(url) )
-      return b;
-    if( detect & chsip.length>0 ) {
+    if( this.wd.test(host) )
+      return this.w;
+    if( this.wi.test(url) )
+      return this.w;
+    if( this.bd.test(host) )
+      return this.b;
+    if( this.bi.test(url) )
+      return this.b;
+    if( this.ba.test(url) )
+      return this.b;
+    if( detect & this.chsip.length>0 ) {
       if( !isResolvable(host) )
-      	return b;
+      	return this.b;
     	var ip = convert_addr( dnsResolve(host) );
-    	var lr=[0,chsip.length-1];
-      if( ip>=chsip[0][0] && ip<=chsip[lr[1]][1] ) {
-      	if(ip<=chsip[0][1]||ip>=chsip[lr[1]][0])
-      		return w;
+    	var lr=[0,this.chsip.length-1];
+      if( ip>=this.chsip[0][0] && ip<=this.chsip[lr[1]][1] ) {
+      	if(ip<=this.chsip[0][1]||ip>=this.chsip[lr[1]][0])
+      		return this.w;
     		while(true) {
     			var mid = Math.floor((lr[0]+lr[1])/2);
     			if(mid==lr[0])
@@ -41,7 +41,7 @@ function Smart(white,black,gray) {
     			else if(ip>chsip[mid][1])
     				left = mid;
     			else
-    				return w;
+    				return this.w;
     		}
       }
     }
