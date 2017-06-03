@@ -2,7 +2,13 @@ var white = "DIRECT; SOCKS5 192.168.119.198:8128";
 var black = "SOCKS5 192.168.119.198:8128; DIRECT";
 var gray = "DIRECT; SOCKS5 192.168.119.198:8128"
 var detect = true;
+var debug = true;
 var smart;
+
+var log = debug ? function(msg) {
+	alert(msg);
+} : function(msg) {};
+
 function Smart(white,black,gray) {
   this.w=white;
   this.b=black;
@@ -14,20 +20,28 @@ function Smart(white,black,gray) {
   this.wd=/$wd/;
   this.chsip=$chsip;
   this.getProxy=function(url,host,detect) {
+		log(url);
+		log(host);
     if( this.wd.test(host) )
       return this.w;
+		log('1');
     if( this.wi.test(url) )
       return this.w;
+		log('2');
     if( this.bd.test(host) )
       return this.b;
+		log('3');
     if( this.bi.test(url) )
       return this.b;
+		log('4');
     if( this.ba.test(url) )
       return this.b;
+		log('5');
     if( detect & this.chsip.length>0 ) {
       if( !isResolvable(host) )
       	return this.b;
     	var ip = convert_addr( dnsResolve(host) );
+			log( ip );
     	var lr=[0,this.chsip.length-1];
       if( ip>=this.chsip[0][0] && ip<=this.chsip[lr[1]][1] ) {
       	if(ip<=this.chsip[0][1]||ip>=this.chsip[lr[1]][0])
@@ -44,6 +58,7 @@ function Smart(white,black,gray) {
     				return this.w;
     		}
       }
+			log( 'ip not match' );
     }
     return g;
   }
