@@ -1,0 +1,28 @@
+{
+  "name": "smart-pac",
+  "version": "1.0.0",
+  "description": "A more flexible and efiicient PAC implementation for filtering large list.",
+  "scripts": {
+    "test": "smart-pac"
+  },
+  "dependencies": {
+    "request-progress" : ">=3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xtons/smart-pac.git"
+  },
+  "keywords": [
+    "smart-pac",
+    "proxy"
+  ],
+  "bin": {
+    "smart-pac": "smart-pac.js"
+  },
+  "author": "Liang Dong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xtons/smart-pac/issues"
+  },
+  "homepage": "https://github.com/xtons/smart-pac#readme"
+}
