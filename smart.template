@@ -13,7 +13,7 @@ function Smart(white,black,gray) {
   this.ba=/$ba/;
   this.wi=/$wi/;
   this.wd=/$wd/;
-  this.chsips=<%=chsips%>;
+  this.chsips=<%=JSON.stringify(chsips)%>;
   this.getProxy=function(url,host,detect) {
 		log(url);
 		log(host);

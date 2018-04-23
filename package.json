@@ -9,7 +9,8 @@
     "progress" : ">=2.0.0",
     "request" : ">=2.8.5",
     "request-progress" : ">=3.0.0",
-    "ejs" : ">=2.5.8"
+    "ejs" : ">=2.5.8",
+    "base64-stream" : ">=0.1.3"
   },
   "repository": {
     "type": "git",
