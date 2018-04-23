@@ -1,13 +1,8 @@
-var white = "DIRECT; SOCKS5 192.168.119.198:8128";
-var black = "SOCKS5 192.168.119.198:8128; DIRECT";
-var gray = "DIRECT; SOCKS5 192.168.119.198:8128"
-var detect = true;
-var debug = true;
-var smart;
-
-var log = debug ? function(msg) {
-	alert(msg);
-} : function(msg) {};
+const white = "DIRECT; SOCKS5 192.168.119.198:8128";
+const black = "SOCKS5 192.168.119.198:8128; DIRECT";
+const gray = "DIRECT; SOCKS5 192.168.119.198:8128"
+const detect = true;
+const smart;
 
 function Smart(white,black,gray) {
   this.w=white;
@@ -18,47 +13,40 @@ function Smart(white,black,gray) {
   this.ba=/$ba/;
   this.wi=/$wi/;
   this.wd=/$wd/;
-  this.chsip=$chsip;
+  this.chsips=<%=chsips%>;
   this.getProxy=function(url,host,detect) {
 		log(url);
 		log(host);
     if( this.wd.test(host) )
       return this.w;
-		log('1');
     if( this.wi.test(url) )
       return this.w;
-		log('2');
     if( this.bd.test(host) )
       return this.b;
-		log('3');
     if( this.bi.test(url) )
       return this.b;
-		log('4');
     if( this.ba.test(url) )
       return this.b;
-		log('5');
-    if( detect & this.chsip.length>0 ) {
+    if( detect & this.chsips.length>0 ) {
       if( !isResolvable(host) )
       	return this.b;
     	var ip = convert_addr( dnsResolve(host) );
-			log( ip );
-    	var lr=[0,this.chsip.length-1];
-      if( ip>=this.chsip[0][0] && ip<=this.chsip[lr[1]][1] ) {
-      	if(ip<=this.chsip[0][1]||ip>=this.chsip[lr[1]][0])
+    	var lr=[0,this.chsips.length-1];
+      if( ip>=this.chsips[0][0] && ip<=this.chsips[lr[1]][1] ) {
+      	if(ip<=this.chsips[0][1]||ip>=this.chsips[lr[1]][0])
       		return this.w;
     		while(true) {
     			var mid = Math.floor((lr[0]+lr[1])/2);
     			if(mid==lr[0])
     				break;
-    			if(ip<chsip[mid][0])
+    			if(ip<chsips[mid][0])
     				right = mid;
-    			else if(ip>chsip[mid][1])
+    			else if(ip>chsips[mid][1])
     				left = mid;
     			else
     				return this.w;
     		}
       }
-			log( 'ip not match' );
     }
     return g;
   }
