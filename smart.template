@@ -1,13 +1,8 @@
-const white = "DIRECT; SOCKS5 192.168.119.198:8128";
-const black = "SOCKS5 192.168.119.198:8128; DIRECT";
-const gray = "DIRECT; SOCKS5 192.168.119.198:8128"
-const detect = true;
-const smart;
-
-function Smart(white,black,gray) {
-  this.w=white;
-  this.b=black;
-  this.g=gray;
+function Smart() {
+  this.detect = true;
+  this.w="<%=proxy.white%>";
+  this.b="<%=proxy.black%>";
+  this.g="<%=proxy.gray%>";
   this.bi=/$bi/;
   this.bd=/$bd/;
   this.ba=/$ba/;
@@ -15,8 +10,6 @@ function Smart(white,black,gray) {
   this.wd=/$wd/;
   this.chsips=<%=JSON.stringify(chsips)%>;
   this.getProxy=function(url,host,detect) {
-		log(url);
-		log(host);
     if( this.wd.test(host) )
       return this.w;
     if( this.wi.test(url) )
@@ -52,8 +45,9 @@ function Smart(white,black,gray) {
   }
 }
 
-function FindProxyForURL(url, host) {
-  if( typeof(smart)=="undefined" )
-    smart = new Smart(white,black,gray);
-  return smart.getProxy(url,host,detect);
+FindProxyForURL = function(){
+  const smart = new Smart();
+  return (url, host) => {
+    return smart.getProxy(url,host,detect);
+  }
 }
