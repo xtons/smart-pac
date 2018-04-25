@@ -47,6 +47,7 @@ var gfwlist = {
     "pureip": [],
     "domain": [],
     "anywhere": {
+      "domain": [],
       "plain": [],
       "regex": []
     }
@@ -54,12 +55,13 @@ var gfwlist = {
 };
 
 https.get(gfwlisturl).on('response', (res) => {
+  const reComment = /^(\[.*\]|[ \f\n\r\t\v]*|\!.*)$/;
   if (res.statusCode === 200) {
-    const reComment = /^(\[.*\]|[ \f\n\r\t\v]*|\!.*)$/;
     const reInitial = /^\|https?:\/\/[0-9a-zA-Z-_.*?&=%~/:]+$/;
     const rePureip = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-    const reDomain = /^\|\|[0-9a-zA-Z-\.*]+\/?$/;
+    const reDomain = /^\|\|[0-9a-zA-Z-.*]+\/?$/;  // 明确的domain中有可能包含*通配符
     const reRegex = /^\/.*\/$/;
+    const reDomain2 = /^[0-9a-zA-Z-.]+$/;  // 经常有domain混在url模式中，此时*通配符通常与url相关
     const reAnywhere = /^[0-9a-zA-Z-_.*?&=%~/:]+$/;
     const len = parseInt(res.headers['content-length'], 10);
     const bar = new ProgressBar('  Downloading GFW List      [:bar] :rate/bps :percent :etas', {
@@ -99,9 +101,11 @@ https.get(gfwlisturl).on('response', (res) => {
       else if (rePureip.test(line))
         list.pureip.push(line);
       else if (reDomain.test(line))
-        list.domain.push(line);
+        list.domain.push(line.substring(2));
       else if (reRegex.test(line))
         list.anywhere.regex.push(line);
+      else if (reDomain2.test(line))
+        list.anywhere.domain.push(line);
       else if (reAnywhere.test(line))
         list.anywhere.plain.push(line);
       else
@@ -110,7 +114,24 @@ https.get(gfwlisturl).on('response', (res) => {
     res.on('data', (chunk) => {
       bar.tick(chunk.length);
     });
-    res.on('end', step2);
+    res.on('end', () => {
+      url2regex = (url) => {
+        return url.replace(/\./g, '\\.').replace(/\?/g, '\\?').replace(/\*/g, '.*').replace(/\//g, '\\/');
+      }
+      with (smart.regex) {
+        black.url = ejs.render('/^http(:\/\/(<%=http%>)|s:\/\/(<%=https%>))/', {
+          "http": gfwlist.black.initial.http.map(url2regex).join('|'),
+          "https": gfwlist.black.initial.http.map(url2regex).join('|')
+        });
+        black.domain = ejs.render('/^(.*\\.)?(<%=domain%>|<%=domain2%>)$/', {
+          "domain": gfwlist.black.domain.map(domain => domain.replace(/\*/g, '.*')).join('|'),
+          "domain2": gfwlist.black.domain.map(domain2 => domain2[0]=='.'?domain2.substring(1).replace(/\*/g, '.*'):domain2.replace(/\*/g, '.*')).join('|')
+        });
+        black.pureip = ejs.render('/^(<%=txt%>)$/', { "txt": gfwlist.black.pureip.map(txt => txt.replace(/\./g, '\\.')).join('|') });
+        console.log(black.domain);
+      }
+      step2();
+    });
   }
 }).on('error', (err) => {
   console.error('\nGet GFW List failed!\n');

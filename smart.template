@@ -3,12 +3,13 @@ function Smart() {
   this.w="<%=proxy.white%>";
   this.b="<%=proxy.black%>";
   this.g="<%=proxy.gray%>";
+  this.regex=<%=JSON.stringify(regex)%>
+  this.chsips=<%=JSON.stringify(chsips)%>;
   this.bi=/$bi/;
   this.bd=/$bd/;
   this.ba=/$ba/;
   this.wi=/$wi/;
   this.wd=/$wd/;
-  this.chsips=<%=JSON.stringify(chsips)%>;
   this.getProxy=function(url,host,detect) {
     if( this.wd.test(host) )
       return this.w;
