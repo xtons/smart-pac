@@ -9,7 +9,7 @@ const base64 = require('base64-stream');
 
 var smart = {
   "proxy": {
-    "white": "DIRECT; SOCKS5 192.168.119.2:1080",
+    "white": "DIRECT",
     "black": "SOCKS5 192.168.119.198:2; DIRECT",
     "gray": "DIRECT; SOCKS5 192.168.119.2:1080"
   },
@@ -103,7 +103,7 @@ https.get(gfwlisturl).on('response', (res) => {
       else if (reDomain.test(line))
         list.domain.push(line.substring(2));
       else if (reRegex.test(line))
-        list.anywhere.regex.push(line);
+        list.anywhere.regex.push(line.substring(1,line.length-2));
       else if (reDomain2.test(line))
         list.anywhere.domain.push(line);
       else if (reAnywhere.test(line))
@@ -119,16 +119,24 @@ https.get(gfwlisturl).on('response', (res) => {
         return url.replace(/\./g, '\\.').replace(/\?/g, '\\?').replace(/\*/g, '.*').replace(/\//g, '\\/');
       }
       with (smart.regex) {
-        black.url = ejs.render('/^http(:\/\/(<%=http%>)|s:\/\/(<%=https%>))/', {
+        black.url = ejs.render('/^http(:\/\/(<%=http%>)|s:\/\/(<%=https%>))|<%=any%>|<%=regex%>/', {
           "http": gfwlist.black.initial.http.map(url2regex).join('|'),
-          "https": gfwlist.black.initial.http.map(url2regex).join('|')
+          "https": gfwlist.black.initial.http.map(url2regex).join('|'),
+          "any": gfwlist.black.anywhere.plain.map(url2regex).join('|'),
+          "regex": gfwlist.black.anywhere.regex.join('|')
         });
         black.domain = ejs.render('/^(.*\\.)?(<%=domain%>|<%=domain2%>)$/', {
           "domain": gfwlist.black.domain.map(domain => domain.replace(/\*/g, '.*')).join('|'),
           "domain2": gfwlist.black.domain.map(domain2 => domain2[0]=='.'?domain2.substring(1).replace(/\*/g, '.*'):domain2.replace(/\*/g, '.*')).join('|')
         });
         black.pureip = ejs.render('/^(<%=txt%>)$/', { "txt": gfwlist.black.pureip.map(txt => txt.replace(/\./g, '\\.')).join('|') });
-        console.log(black.domain);
+        white.url = ejs.render('/^http(:\/\/(<%=http%>)|s:\/\/(<%=https%>))/', {
+          "http": gfwlist.white.initial.http.map(url2regex).join('|'),
+          "https": gfwlist.white.initial.http.map(url2regex).join('|')
+        });
+        white.domain = ejs.render('/^(.*\\.)?(<%=domain%>)$/', {
+          "domain": gfwlist.white.domain.map(domain => domain.replace(/\*/g, '.*')).join('|')
+        });
       }
       step2();
     });
@@ -165,7 +173,7 @@ function step2() {
       const result = reCN.exec(line)
       if (result) {
         with (smart) {
-          const sect = [parseInt(result[2], 10) << 24 | parseInt(result[3], 10) << 16 | parseInt(result[4], 10) << 8 | parseInt(result[5], 10),
+          const sect = [(parseInt(result[2], 10) << 16) * 256 + (parseInt(result[3], 10) << 16) + (parseInt(result[4], 10) << 8) + parseInt(result[5], 10),
           parseInt(result[6], 10)];
           if (chsips.length == 0) {
             chsips.push(sect);
@@ -190,7 +198,7 @@ function step2() {
           process.exit(-3);
         }
         else
-          ;// console.log(data);
+          console.log(data);
       });
     });
   }).on('error', (err) => {

@@ -1,54 +1,50 @@
 function Smart() {
-  this.detect = true;
-  this.w="<%=proxy.white%>";
-  this.b="<%=proxy.black%>";
-  this.g="<%=proxy.gray%>";
-  this.regex=<%=JSON.stringify(regex)%>
-  this.chsips=<%=JSON.stringify(chsips)%>;
-  this.bi=/$bi/;
-  this.bd=/$bd/;
-  this.ba=/$ba/;
-  this.wi=/$wi/;
-  this.wd=/$wd/;
-  this.getProxy=function(url,host,detect) {
-    if( this.wd.test(host) )
+  this.w="<%-proxy.white%>";
+  this.b="<%-proxy.black%>";
+  this.g="<%-proxy.gray%>";
+  this.regex=<%-JSON.stringify(regex)%>
+  this.chsips=<%-JSON.stringify(chsips)%>;
+  this.getProxy=(url,host,detect) => {
+    if( this.regex.white.domain.test(host) )
       return this.w;
-    if( this.wi.test(url) )
+    if( this.regex.white.url.test(url) )
       return this.w;
-    if( this.bd.test(host) )
+    if( !isResolvable(host) )
       return this.b;
-    if( this.bi.test(url) )
+    const ip = dnsResolve(host);
+    if (isInNet(resolved_ip, "10.0.0.0", "255.0.0.0") || isInNet(resolved_ip, "172.16.0.0", "255.240.0.0") ||
+      isInNet(resolved_ip, "192.168.0.0", "255.255.0.0") || isInNet(resolved_ip, "127.0.0.0", "255.255.255.0"))
+      return this.w; 
+    if( this.regex.black.domain.test(host) )
       return this.b;
-    if( this.ba.test(url) )
+    if( this.regex.black.url.test(url) )
       return this.b;
-    if( detect & this.chsips.length>0 ) {
-      if( !isResolvable(host) )
-      	return this.b;
-    	var ip = convert_addr( dnsResolve(host) );
-    	var lr=[0,this.chsips.length-1];
-      if( ip>=this.chsips[0][0] && ip<=this.chsips[lr[1]][1] ) {
-      	if(ip<=this.chsips[0][1]||ip>=this.chsips[lr[1]][0])
-      		return this.w;
-    		while(true) {
-    			var mid = Math.floor((lr[0]+lr[1])/2);
-    			if(mid==lr[0])
-    				break;
-    			if(ip<chsips[mid][0])
-    				right = mid;
-    			else if(ip>chsips[mid][1])
-    				left = mid;
-    			else
-    				return this.w;
-    		}
+    if( this.regex.black.pureip.test(domain) )
+      return this.b;
+    const ipnum = convert_addr( ip );
+    var lr=[0,this.chsips.length-1];
+    if( ipnum>=this.chsips[0][0] && ip<=this.chsips[lr[1]][1] ) {
+      if(ip<=this.chsips[0][1]||ip>=this.chsips[lr[1]][0])
+        return this.w;
+      while(true) {
+        var mid = Math.floor((lr[0]+lr[1])/2);
+        if(mid==lr[0])
+          break;
+        if(ip<chsips[mid][0])
+          right = mid;
+        else if(ip>chsips[mid][1])
+          left = mid;
+        else
+          return this.w;
       }
     }
     return g;
   }
 }
 
-FindProxyForURL = function(){
+FindProxyForURL = (()=>{
   const smart = new Smart();
   return (url, host) => {
     return smart.getProxy(url,host,detect);
   }
-}
+})();
