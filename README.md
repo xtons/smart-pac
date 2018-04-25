@@ -17,5 +17,5 @@
 ## 用法
 在smart-pac.js中设置自己需要的proxy字符串
 ```
-python smart-pac.js > smart.pac
+node smart-pac.js > smart.pac
 ```
