@@ -2,9 +2,19 @@ function Smart() {
   this.w="<%-proxy.white%>";
   this.b="<%-proxy.black%>";
   this.g="<%-proxy.gray%>";
-  this.regex=<%-JSON.stringify(regex)%>
+  this.regex={
+    "white": {
+      "domain": new RegExp("<%-regex.white.domain%>"),
+      "url": new RegExp("<%-regex.white.url%>")
+    },
+    "black": {
+      "pureip": new RegExp("<%-regex.black.pureip%>"),
+      "domain": new RegExp("<%-regex.black.domain%>"),
+      "url": new RegExp("<%-regex.black.url%>")
+    }
+  }
   this.chsips=<%-JSON.stringify(chsips)%>;
-  this.getProxy=(url,host,detect) => {
+  this.getProxy=(url,host) => {
     if( this.regex.white.domain.test(host) )
       return this.w;
     if( this.regex.white.url.test(url) )
@@ -12,8 +22,7 @@ function Smart() {
     if( !isResolvable(host) )
       return this.b;
     const ip = dnsResolve(host);
-    if (isInNet(resolved_ip, "10.0.0.0", "255.0.0.0") || isInNet(resolved_ip, "172.16.0.0", "255.240.0.0") ||
-      isInNet(resolved_ip, "192.168.0.0", "255.255.0.0") || isInNet(resolved_ip, "127.0.0.0", "255.255.255.0"))
+    if (isInNet(ip, "10.0.0.0", "255.0.0.0") || isInNet(ip, "172.16.0.0", "255.240.0.0") || isInNet(ip, "192.168.0.0", "255.255.0.0") || isInNet(ip, "127.0.0.0", "255.255.255.0"))
       return this.w; 
     if( this.regex.black.domain.test(host) )
       return this.b;
@@ -45,6 +54,6 @@ function Smart() {
 FindProxyForURL = (()=>{
   const smart = new Smart();
   return (url, host) => {
-    return smart.getProxy(url,host,detect);
+    return smart.getProxy(url,host);
   }
 })();

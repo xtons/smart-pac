@@ -15,6 +15,7 @@
 希望这些改进对其他有大量域名需要过滤的PAC用户同样有用。
 
 ## 用法
+在smart-pac.js中设置自己需要的proxy字符串
 ```
-python main.py > smart.pac
+python smart-pac.js > smart.pac
 ```

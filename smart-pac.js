@@ -10,8 +10,8 @@ const base64 = require('base64-stream');
 var smart = {
   "proxy": {
     "white": "DIRECT",
-    "black": "SOCKS5 192.168.119.198:2; DIRECT",
-    "gray": "DIRECT; SOCKS5 192.168.119.2:1080"
+    "black": "PROXY 192.168.119.2:8123; DIRECT",
+    "gray": "DIRECT; PROXY 192.168.119.2:8123"
   },
   "regex": {
     "white": {
@@ -103,7 +103,7 @@ https.get(gfwlisturl).on('response', (res) => {
       else if (reDomain.test(line))
         list.domain.push(line.substring(2));
       else if (reRegex.test(line))
-        list.anywhere.regex.push(line.substring(1,line.length-2));
+        list.anywhere.regex.push(line.substring(1, line.length - 1));
       else if (reDomain2.test(line))
         list.anywhere.domain.push(line);
       else if (reAnywhere.test(line))
@@ -116,28 +116,26 @@ https.get(gfwlisturl).on('response', (res) => {
     });
     res.on('end', () => {
       url2regex = (url) => {
-        return url.replace(/\./g, '\\.').replace(/\?/g, '\\?').replace(/\*/g, '.*').replace(/\//g, '\\/');
-      }
-      with (smart.regex) {
-        black.url = ejs.render('/^http(:\/\/(<%=http%>)|s:\/\/(<%=https%>))|<%=any%>|<%=regex%>/', {
-          "http": gfwlist.black.initial.http.map(url2regex).join('|'),
-          "https": gfwlist.black.initial.http.map(url2regex).join('|'),
-          "any": gfwlist.black.anywhere.plain.map(url2regex).join('|'),
-          "regex": gfwlist.black.anywhere.regex.join('|')
-        });
-        black.domain = ejs.render('/^(.*\\.)?(<%=domain%>|<%=domain2%>)$/', {
-          "domain": gfwlist.black.domain.map(domain => domain.replace(/\*/g, '.*')).join('|'),
-          "domain2": gfwlist.black.domain.map(domain2 => domain2[0]=='.'?domain2.substring(1).replace(/\*/g, '.*'):domain2.replace(/\*/g, '.*')).join('|')
-        });
-        black.pureip = ejs.render('/^(<%=txt%>)$/', { "txt": gfwlist.black.pureip.map(txt => txt.replace(/\./g, '\\.')).join('|') });
-        white.url = ejs.render('/^http(:\/\/(<%=http%>)|s:\/\/(<%=https%>))/', {
-          "http": gfwlist.white.initial.http.map(url2regex).join('|'),
-          "https": gfwlist.white.initial.http.map(url2regex).join('|')
-        });
-        white.domain = ejs.render('/^(.*\\.)?(<%=domain%>)$/', {
-          "domain": gfwlist.white.domain.map(domain => domain.replace(/\*/g, '.*')).join('|')
-        });
-      }
+        return url.replace(/\./g, '\\.').replace(/\?/g, '\\?').replace(/\*/g, '.*').replace(/\//g, '\\/').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+      };
+      smart.regex.black.url = ejs.render('^http(:\\/\\/(<%-http%>)|s\\:\\/\\/(<%-https%>))|<%-any%>|<%-regex%>', {
+        "http": gfwlist.black.initial.http.map(url2regex).join('|'),
+        "https": gfwlist.black.initial.http.map(url2regex).join('|'),
+        "any": gfwlist.black.anywhere.plain.map(url2regex).join('|'),
+        "regex": gfwlist.black.anywhere.regex.join('|')
+      });
+      smart.regex.black.domain = ejs.render('^(.*\\.)?(<%-domain%>|<%-domain2%>)$', {
+        "domain": gfwlist.black.domain.map(domain => domain.replace(/\*/g, '.*')).join('|'),
+        "domain2": gfwlist.black.domain.map(domain2 => domain2[0] == '.' ? domain2.substring(1).replace(/\*/g, '.*') : domain2.replace(/\*/g, '.*')).join('|')
+      });
+      smart.regex.black.pureip = ejs.render('^(<%-txt%>)$', { "txt": gfwlist.black.pureip.map(txt => txt.replace(/\./g, '\\.')).join('|') });
+      smart.regex.white.url = ejs.render('^http(:\/\/(<%-http%>)|s:\/\/(<%-https%>))', {
+        "http": gfwlist.white.initial.http.map(url2regex).join('|'),
+        "https": gfwlist.white.initial.http.map(url2regex).join('|')
+      });
+      smart.regex.white.domain = ejs.render('^(.*\\.)?(<%-domain%>)$', {
+        "domain": gfwlist.white.domain.map(domain => domain.replace(/\*/g, '.*')).join('|')
+      });
       step2();
     });
   }
@@ -194,7 +192,7 @@ function step2() {
     res.on('end', () => {
       ejs.renderFile(__dirname + '/smart.template', smart, (err, data) => {
         if (err) {
-          console.log(err);
+          console.error(err);
           process.exit(-3);
         }
         else
@@ -202,8 +200,8 @@ function step2() {
       });
     });
   }).on('error', (err) => {
-    console.log('\nGet apnic records failed!\n');
-    console.log(err);
+    console.error('\nGet apnic records failed!\n');
+    console.error(err);
     process.exit(-2);
   });
 }
