@@ -54,15 +54,61 @@ var gfwlist = {
   }
 };
 
+const reComment = /^(\[.*\]|[ \f\n\r\t\v]*|\!.*)$/;
+const reInitial = /^\|https?:\/\/[0-9a-zA-Z-_.*?&=%~/:]+$/;
+const rePureip = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+const reDomain = /^\|\|[0-9a-zA-Z-.*]+\/?$/;  // 明确的domain中有可能包含*通配符
+const reRegex = /^\/.*\/$/;
+const reDomain2 = /^[0-9a-zA-Z-.]+$/;  // 经常有domain混在url模式中，此时*通配符通常与url相关
+const reAnywhere = /^[0-9a-zA-Z-_.*?&=%~/:]+$/;
+const reGroup = /\|/g;
+
+const readRule = (line) => {
+  // 跳过注释、空行与开头的版本说明
+  if (reComment.test(line))
+    return;
+  // 区分黑名单与白名单
+  var list;
+  if (line.startsWith('@@')) {
+    line = line.substring(2);
+    list = gfwlist.white;
+  }
+  else
+    list = gfwlist.black;
+  if (reInitial.test(line)) {
+    list = list.initial;
+    if (line[5] == 's') {
+      line = line.substring(9);
+      list = list.https;
+    }
+    else {
+      line = line.substring(8);
+      list = list.http;
+    }
+    list.push(line);
+  }
+  else if (rePureip.test(line))
+    list.pureip.push(line);
+  else if (reDomain.test(line))
+    list.domain.push(line.substring(2));
+  else if (reRegex.test(line)) {
+    if (line.match(reGroup) == null || line.match(reGroup).length < 30)  // hack for performance problem on google's very long expression
+      list.anywhere.regex.push(line.substring(1, line.length - 1));
+  }
+  else if (reDomain2.test(line))
+    list.anywhere.domain.push(line);
+  else if (reAnywhere.test(line))
+    list.anywhere.plain.push(line);
+  else
+    console.error('\nCan\'t understand %s.\n', line);
+}
+
+// 同步上有点小问题，但几乎不太可能网络比本地文件处理得快，懒得改了
+readline.createInterface({
+  input: fs.createReadStream('user.rule')
+}).on('line', readRule);
 https.get(gfwlisturl).on('response', (res) => {
-  const reComment = /^(\[.*\]|[ \f\n\r\t\v]*|\!.*)$/;
   if (res.statusCode === 200) {
-    const reInitial = /^\|https?:\/\/[0-9a-zA-Z-_.*?&=%~/:]+$/;
-    const rePureip = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-    const reDomain = /^\|\|[0-9a-zA-Z-.*]+\/?$/;  // 明确的domain中有可能包含*通配符
-    const reRegex = /^\/.*\/$/;
-    const reDomain2 = /^[0-9a-zA-Z-.]+$/;  // 经常有domain混在url模式中，此时*通配符通常与url相关
-    const reAnywhere = /^[0-9a-zA-Z-_.*?&=%~/:]+$/;
     const len = parseInt(res.headers['content-length'], 10);
     const bar = new ProgressBar('  Downloading GFW List      [:bar] :rate/bps :percent :etas', {
       complete: '=',
@@ -74,43 +120,7 @@ https.get(gfwlisturl).on('response', (res) => {
     readline.createInterface({
       input: res.pipe(base64.decode()),
       output: null
-    }).on('line', (line) => {
-      // 跳过注释、空行与开头的版本说明
-      if (reComment.test(line))
-        return;
-      // 区分黑名单与白名单
-      var list;
-      if (line.startsWith('@@')) {
-        line = line.substring(2);
-        list = gfwlist.white;
-      }
-      else
-        list = gfwlist.black;
-      if (reInitial.test(line)) {
-        list = list.initial;
-        if (line[5] == 's') {
-          line = line.substring(9);
-          list = list.https;
-        }
-        else {
-          line = line.substring(8);
-          list = list.http;
-        }
-        list.push(line);
-      }
-      else if (rePureip.test(line))
-        list.pureip.push(line);
-      else if (reDomain.test(line))
-        list.domain.push(line.substring(2));
-      else if (reRegex.test(line))
-        list.anywhere.regex.push(line.substring(1, line.length - 1));
-      else if (reDomain2.test(line))
-        list.anywhere.domain.push(line);
-      else if (reAnywhere.test(line))
-        list.anywhere.plain.push(line);
-      else
-        console.error('\nCan\'t understand %s.\n', line);
-    });
+    }).on('line', readRule);
     res.on('data', (chunk) => {
       bar.tick(chunk.length);
     });
@@ -125,8 +135,8 @@ https.get(gfwlisturl).on('response', (res) => {
         "regex": gfwlist.black.anywhere.regex.join('|')
       });
       smart.regex.black.domain = ejs.render('^(.*\\.)?(<%-domain%>|<%-domain2%>)$', {
-        "domain": gfwlist.black.domain.map(domain => domain.replace(/\*/g, '.*')).join('|'),
-        "domain2": gfwlist.black.domain.map(domain2 => domain2[0] == '.' ? domain2.substring(1).replace(/\*/g, '.*') : domain2.replace(/\*/g, '.*')).join('|')
+        "domain": gfwlist.black.domain.map(domain => domain.replace(/\./g, '\\.').replace(/\*/g, '.*')).join('|'),
+        "domain2": gfwlist.black.anywhere.domain.map(domain2 => domain2[0] == '.' ? domain2.substring(1).replace(/\*/g, '.*') : domain2.replace(/\*/g, '.*')).join('|')
       });
       smart.regex.black.pureip = ejs.render('^(<%-txt%>)$', { "txt": gfwlist.black.pureip.map(txt => txt.replace(/\./g, '\\.')).join('|') });
       smart.regex.white.url = ejs.render('^http(:\/\/(<%-http%>)|s:\/\/(<%-https%>))', {
