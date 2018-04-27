@@ -15,7 +15,6 @@ function Smart() {
   }
   this.chsips=<%-JSON.stringify(chsips)%>;
   this.getProxy=(url,host) => {
-    alert(url);
     var proxy;
     if( this.regex.white.domain.test(host) )
       proxy = this.w;
@@ -55,7 +54,6 @@ function Smart() {
       */
       proxy = this.g;
     }
-    alert( url + '---' + proxy );
     return proxy;
   }
 }
