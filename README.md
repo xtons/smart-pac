@@ -17,5 +17,7 @@
 ## 用法
 参考对应的sample文件配置proxy.js，smart.template与user.rule文件，
 ```
-node smart-pac.js > smart.pac
+npm install
+npm link
+smart-pac > smart.pac
 ```

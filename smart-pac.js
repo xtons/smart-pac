@@ -143,7 +143,7 @@ https.get(gfwlisturl).on('response', (res) => {
         "https": gfwlist.white.initial.http.map(url2regex).join('|')
       });
       smart.regex.white.domain = ejs.render('^(.*\\.)?(<%-domain%>)$', {
-        "domain": gfwlist.white.domain.map(domain => domain.replace(/\*/g, '.*')).join('|')
+        "domain": gfwlist.white.domain.map(domain => domain.replace(/\./g, '\\.').replace(/\*/g, '.*')).join('|')
       });
       step2();
     });
