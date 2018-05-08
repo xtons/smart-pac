@@ -15,7 +15,7 @@
 希望这些改进对其他有大量域名需要过滤的PAC用户同样有用。
 
 ## 用法
-在smart-pac.js中设置自己需要的proxy字符串
+参考对应的sample文件配置proxy.js，smart.template与user.rule文件，
 ```
 node smart-pac.js > smart.pac
 ```

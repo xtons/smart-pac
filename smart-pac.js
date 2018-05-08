@@ -8,11 +8,7 @@ const ejs = require('ejs');
 const base64 = require('base64-stream');
 
 var smart = {
-  "proxy": {
-    "white": "DIRECT",
-    "black": "PROXY 192.168.119.2:8123; DIRECT",
-    "gray": "DIRECT; PROXY 192.168.119.2:8123"
-  },
+  "proxy": require('./proxy'),
   "regex": {
     "white": {
       "domain": null,
@@ -26,6 +22,7 @@ var smart = {
   },
   "chsips": []
 };
+console.log( JSON.stringify(smart) );
 
 //const gfwlisturl = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt";
 const gfwlisturl = "https://pagure.io/gfwlist/raw/master/f/gfwlist.txt";
@@ -92,7 +89,9 @@ const readRule = (line) => {
   else if (reDomain.test(line))
     list.domain.push(line.substring(2));
   else if (reRegex.test(line)) {
-    if (line.match(reGroup) == null || line.match(reGroup).length < 30)  // hack for performance problem on google's very long expression
+    if ( line.match(reGroup)!=null && line.match(reGroup).length > 20 )
+      console.warn( '\n"%s" has been skiped for performance reason.\n', line );
+    else
       list.anywhere.regex.push(line.substring(1, line.length - 1));
   }
   else if (reDomain2.test(line))

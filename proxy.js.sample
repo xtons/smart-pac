@@ -1,0 +1,5 @@
+exports.proxy = {
+    "white": "DIRECT",
+    "black": "SOCKS5 127.0.0.1:8128; DIRECT",
+    "gray": "DIRECT; SOCKS5 127.0.0.1:8128"
+}
