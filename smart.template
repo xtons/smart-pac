@@ -12,7 +12,7 @@ function Smart() {
       "domain": new RegExp("<%-regex.black.domain%>"),
       "url": new RegExp("<%-regex.black.url%>")
     }
-  }
+  };
   this.chsips=<%-JSON.stringify(chsips)%>;
   this.getProxy=(url,host) => {
     var proxy;
@@ -23,7 +23,9 @@ function Smart() {
     else if( !isResolvable(host) )
       proxy = this.b;
     const ip = dnsResolve(host);
-    if (isInNet(ip, "10.0.0.0", "255.0.0.0") || isInNet(ip, "172.16.0.0", "255.240.0.0") || isInNet(ip, "192.168.0.0", "255.255.0.0") || isInNet(ip, "127.0.0.0", "255.255.255.0"))
+    if (ip==null)
+      proxy = this.b;
+    else if (isInNet(ip, "10.0.0.0", "255.0.0.0") || isInNet(ip, "172.16.0.0", "255.240.0.0") || isInNet(ip, "192.168.0.0", "255.255.0.0") || isInNet(ip, "127.0.0.0", "255.255.255.0"))
       proxy = this.w; 
     else if( this.regex.black.domain.test(host) )
       proxy = this.b;
@@ -34,34 +36,17 @@ function Smart() {
     else {
       const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(ip);
       const ipnum = (parseInt(m[1], 10) << 16) * 256 + (parseInt(m[2], 10) << 16) + (parseInt(m[3], 10) << 8) + parseInt(m[4], 10);
-      /*
-      var l=0, r=this.cnsips.length-1;
-      do {
-        var c = Math.round((l+r)/2);
-        if( this.cnsips[c][0]<=ipnum )
-          l = c;
+      var c, l=0, r=this.chsips.length;
+      while ( l!=(c= Math.floor((l+r)/2)) ){
+        if( this.chsips[c][0]>ipnum )
+          r = c
         else
-          r = c;
+          l = c;
       }
-
-      var lr=[0,this.chsips.length-1];
-      if( ipnum>=this.chsips[0][0] && ip<=this.chsips[lr[1]][1] ) {
-        if(ip<=this.chsips[0][1]||ip>=this.chsips[lr[1]][0])
-          return this.w;
-        while(true) {
-          var mid = Math.floor((lr[0]+lr[1])/2);
-          if(mid==lr[0])
-            break;
-          if(ip<chsips[mid][0])
-            right = mid;
-          else if(ip>chsips[mid][1])
-            left = mid;
-          else
-            return this.w;
-        }
-      }
-      */
-      proxy = this.g;
+      if( this.chsips[c][0]<=ipnum && this.chsips[c][0]+this.chsips[c][1]>ipnum )
+        proxy = this.w;
+      else
+        proxy = this.g;
     }
     return proxy;
   }
