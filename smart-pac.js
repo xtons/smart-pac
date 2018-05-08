@@ -6,9 +6,10 @@ const https = require('https');
 const readline = require('readline');
 const ejs = require('ejs');
 const base64 = require('base64-stream');
+const proxy = require('./proxy');
 
 var smart = {
-  "proxy": require('./proxy'),
+  "proxy": proxy,
   "regex": {
     "white": {
       "domain": null,
@@ -22,7 +23,6 @@ var smart = {
   },
   "chsips": []
 };
-console.log( JSON.stringify(smart) );
 
 //const gfwlisturl = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt";
 const gfwlisturl = "https://pagure.io/gfwlist/raw/master/f/gfwlist.txt";
