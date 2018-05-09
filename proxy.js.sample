@@ -1,5 +1,5 @@
 module.exports = {
     "white": "DIRECT",
-    "black": "SOCKS5 127.0.0.1:8128; DIRECT",
-    "gray": "DIRECT; SOCKS5 127.0.0.1:8128"
+    "black": "SOCKS5 127.0.0.1:8128; PROXY 127.0.0.1:8123; DIRECT",
+    "gray": "DIRECT; SOCKS5 127.0.0.1:8128; PROXY 127.0.0.1:8123"
 }
