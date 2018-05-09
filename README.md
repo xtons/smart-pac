@@ -21,3 +21,9 @@ npm install
 npm link
 smart-pac > smart.pac
 ```
+如要用于Windows 10下的Microsoft Edge或Internet Explorer浏览器，需要修改注册表（有可能在新版本中失效）或是Web服务器配置，以Nginx为例：
+```
+  location ~ \.pac$ {
+    add_header Content-Type  application/x-ns-proxy-autoconfig;
+  }
+```
