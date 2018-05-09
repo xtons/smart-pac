@@ -15,7 +15,7 @@
 希望这些改进对其他有大量域名需要过滤的PAC用户同样有用。
 
 ## 用法
-参考对应的sample文件配置proxy.js，smart.template与user.rule文件，
+参考对应的sample文件配置proxy.js与user.rule文件，
 ```
 npm install
 npm link
