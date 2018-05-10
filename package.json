@@ -19,6 +19,9 @@
     "smart-pac",
     "proxy"
   ],
+  "scripts": {
+    "server": "node server.js"
+  },
   "bin": {
     "smart-pac": "smart-pac.js"
   },
