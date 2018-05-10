@@ -55,7 +55,8 @@ function Smart() {
 }
 
 FindProxyForURL = (function(){
+  var smart = new Smart();
   return function(url,host){
-    return new Smart().getProxy(url,host);
+    return smart.getProxy(url,host);
   };
 })();
