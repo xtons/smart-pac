@@ -1,19 +1,19 @@
 function Smart() {
-  this.w="<%-proxy.white%>";
-  this.b="<%-proxy.black%>";
-  this.g="<%-proxy.gray%>";
+  this.w="${proxy.white}";
+  this.b="${proxy.black}";
+  this.g="${proxy.gray}";
   this.regex={
     "white": {
-      "domain": new RegExp("<%-regex.white.domain%>"),
-      "url": new RegExp("<%-regex.white.url%>")
+      "domain": new RegExp("${regex.white.domain}"),
+      "url": new RegExp("${regex.white.url}")
     },
     "black": {
-      "pureip": new RegExp("<%-regex.black.pureip%>"),
-      "domain": new RegExp("<%-regex.black.domain%>"),
-      "url": new RegExp("<%-regex.black.url%>")
+      "pureip": new RegExp("${regex.black.pureip}"),
+      "domain": new RegExp("${regex.black.domain}"),
+      "url": new RegExp("${regex.black.url}")
     }
   };
-  this.chsips=<%-JSON.stringify(chsips)%>;
+  this.chsips=${JSON.stringify(chsips)};
   this.getProxy=function(url,host){
     var proxy = this.g;
     if( this.regex.white.domain.test(host) )
