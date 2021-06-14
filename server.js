@@ -14,6 +14,7 @@ http.createServer(function(request, response) {
           response.end();
         }
         else {
+          console.log("response pac for whatever.");
           response.writeHead(200, {"Content-Type": "application/x-ns-proxy-autoconfig"});
           response.write(file, "binary");
           response.end();
